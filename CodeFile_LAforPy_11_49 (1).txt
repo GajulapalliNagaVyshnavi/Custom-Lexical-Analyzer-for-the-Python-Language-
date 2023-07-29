@@ -1,0 +1,74 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <regex>
+using namespace std;
+
+bool isKeyword(string word) {
+    string keywords[] = {"False", "None", "True", "and", "as", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"};
+    for (auto keyword : keywords) {
+        if (keyword == word) return true;
+    }
+    return false;
+}
+
+bool isIdentifier(string word) {
+    regex pattern("[_a-zA-Z][_a-zA-Z0-9]*");
+    return regex_match(word, pattern);
+}
+
+bool isString(string word) {
+    regex pattern("\".*\"");
+    return regex_match(word, pattern);
+}
+
+bool isNumber(string word) {
+    regex pattern("[0-9]+");
+    return regex_match(word, pattern);
+}
+
+bool isOperator(char c) {
+    string operators = "+-*/%=<>&|^!~";
+    return operators.find(c) != string::npos;
+}
+
+bool isPunctuation(char c) {
+    string punctuation = "()[]{}:;,.?";
+    return punctuation.find(c) != string::npos;
+}
+
+int main() {
+    string file_name = "input.txt";
+    ifstream input_file(file_name);
+    string line, word;
+    while (getline(input_file, line)) {
+        for (int i = 0; i < line.length(); i++) {
+            char currentChar = line[i];
+            if (currentChar == ' ' || currentChar == '\n' || currentChar == '\t' || isOperator(currentChar) || isPunctuation(currentChar)) {
+                if (!word.empty()) {
+                    if (isKeyword(word)) cout << word << " is a keyword\n";
+                    else if (isIdentifier(word)) cout << word << " is an identifier\n";
+                    else if (isString(word)) cout << word << " is a string\n";
+                    else if (isNumber(word)) cout << word << " is a number\n";
+                    else cout << word << " is not a recognized token\n";
+                    word = "";
+                }
+                if (isOperator(currentChar)) cout << currentChar << " is an operator\n";
+                else if (isPunctuation(currentChar)) cout << currentChar << " is a punctuation symbol\n";
+            }
+            else {
+                word += currentChar;
+            }
+        }
+        if (!word.empty()) {
+            if (isKeyword(word)) cout << word << " is a keyword\n";
+            else if (isIdentifier(word)) cout << word << " is an identifier\n";
+            else if (isString(word)) cout << word << " is a string\n";
+            else if (isNumber(word)) cout << word << " is a number\n";
+            else cout << word << " is not a recognized token\n";
+            word = "";
+        }
+    }
+    input_file.close();
+    return 0;
+}
